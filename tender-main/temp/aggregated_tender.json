@@ -1,0 +1,129 @@
+{
+  "tender_id": "0338200012225000022",
+  "title": "Поставка свай винтовых",
+  "description": "Закупка винтовых свай с фланцем для нужд природного парка. Поставка должна быть осуществлена до 25.12.2025.",
+  "document_type": "Извещение о закупке",
+  "purchase_type": "Электронный аукцион",
+  "customer": {
+    "name": "КРАЕВОЕ ГОСУДАРСТВЕННОЕ БЮДЖЕТНОЕ УЧРЕЖДЕНИЕ \"ПРИРОДНЫЙ ПАРК \"ВУЛКАНЫ КАМЧАТКИ\"",
+    "inn": "",
+    "kpp": "",
+    "ogrn": "",
+    "address": "684000, Камчатский край, Елизовский р-н, г. Елизово, ул. Завойко, д. 33",
+    "contacts": "Кайсина М. В., 7-41531-72400, park-vulkany@yandex.ru"
+  },
+  "object": {
+    "name": "Поставка свай винтовых",
+    "address": "Российская Федерация, край Камчатский, м.р-н Елизовский, г.п. Елизовское, г Елизово, ул Зеленая, д. 2б",
+    "category": "",
+    "volume": "",
+    "unit": ""
+  },
+  "technical": {
+    "requirements": "Тип серия F, многовитковая, с круглым фланцем. Диаметр 89 мм, длина 2000 мм, толщиной стенки ≥ 3.75 мм, покрытие горячее оцинкование.",
+    "conditions": "Товар должен быть поставлен не позднее 25.12.2025 с даты заключения контракта.",
+    "works": {
+      "works_list": [
+        {
+          "name": "",
+          "volume": "",
+          "unit": "",
+          "materials": "",
+          "equipment": "",
+          "location": "",
+          "notes": ""
+        },
+        {
+          "name": "",
+          "volume": "",
+          "unit": "",
+          "materials": "",
+          "equipment": "",
+          "location": "",
+          "notes": ""
+        }
+      ]
+    }
+  },
+  "timeline": {
+    "start_date": "2025-10-20",
+    "end_date": "2025-12-31",
+    "duration_days": "",
+    "delivery_schedule": "Поставка не позднее 25.12.2025"
+  },
+  "pricing": {
+    "currency": "RUB",
+    "price_estimate_min": "",
+    "price_estimate_max": "548473.05",
+    "sources": "",
+    "calculation_comment": ""
+  },
+  "goods": {
+    "items": [
+      {
+        "name": "",
+        "description": "",
+        "brand": "",
+        "model": "",
+        "certificates": "",
+        "quantity": "",
+        "unit": "",
+        "requirements": ""
+      },
+      {
+        "name": "",
+        "description": "",
+        "brand": "",
+        "model": "",
+        "certificates": "",
+        "quantity": "",
+        "unit": "",
+        "requirements": ""
+      },
+      {
+        "name": "Свая винтовая с фланцем 2000*89*3,75мм",
+        "description": "Тип серия F, многовитковая, с круглым фланцем",
+        "brand": "",
+        "model": "",
+        "certificates": "",
+        "quantity": "45",
+        "unit": "Штука",
+        "requirements": "Диаметр 89 мм, длина 2000 мм, толщина стенки ≥ 3.75 мм, покрытие горячее оцинкование."
+      }
+    ]
+  },
+  "legal": {
+    "contract_conditions": "Предусмотрена возможность одностороннего отказа от исполнения контракта в соответствии со ст. 95 Закона № 44-ФЗ.",
+    "penalties": "",
+    "guarantees": "Требуется гарантия качества товара на 12 месяцев с даты подписания документа о приемке."
+  },
+  "analysis_meta": {
+    "user_city": "Москва",
+    "fallback_used": false,
+    "fallback_reason": ""
+  },
+  "market_analysis": {
+    "minimum_sum_calculation": {
+      "total_min": 99000.0,
+      "total_max": 207000.0,
+      "currency": "RUB",
+      "confidence": "0.5",
+      "works_breakdown": [
+        {
+          "status": "calculated",
+          "work_name": "Свая винтовая с фланцем 2000*89*3,75мм",
+          "volume": 45.0,
+          "unit": "шт",
+          "price_min": 2200.0,
+          "price_max": 4600.0,
+          "subtotal_min": 99000.0,
+          "subtotal_max": 207000.0,
+          "currency": "RUB",
+          "confidence": 0.5
+        }
+      ]
+    },
+    "city": "Москва",
+    "search_engine": "Tender Search Engine"
+  }
+}
