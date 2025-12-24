@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from registry import ProviderRegistry
 import re
+from requests.exceptions import HTTPError, RequestException
 
 logger = logging.getLogger(__name__)
 # Максимально разумная цена за 1 единицу работы (руб.)
@@ -53,6 +54,35 @@ class SearchService:
        ответ строго в JSON, который парсим.
     3) Без лишних логов с кучей ссылок.
     """
+
+    def _compact_market_query(self, raw: str, max_len: int = 180) -> str:
+        """
+        Делает запрос пригодным для маркет-поиска/цен/каталогов.
+        Главная цель: НЕ отправлять в API весь HTML/простыню.
+        """
+        if not raw:
+            return ""
+
+        q = re.sub(r"\s+", " ", str(raw)).strip()
+
+        # Если это типичный мусор с ЕИС, пробуем вытащить "Объект закупки ..."
+        # Пример: "Объект закупки Поставка свай винтовых Заказчик ..."
+        m = re.search(
+            r"(?:Объект закупки)\s+(.+?)\s+(?:Заказчик|Начальная цена|Размещено|Обновлено|Окончание подачи заявок|Этап закупки)",
+            q,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            q = m.group(1).strip()
+
+        # Убираем очевидные заголовки/шапки, если всё ещё похоже на ЕИС-описание сайта
+        q = re.sub(r"Официальный сайт.*?закупок", "", q, flags=re.IGNORECASE).strip()
+
+        # Жёсткое ограничение длины (414 тебе уже намекнул)
+        if len(q) > max_len:
+            q = q[:max_len].rstrip()
+
+        return q
 
     def __init__(self) -> None:
         self._cache: Dict[Tuple[str, str], PriceInfo] = {}
@@ -509,6 +539,42 @@ class SearchService:
             )
 
         text = content.strip()
+        def _to_float(x) -> Optional[float]:
+            """
+            Нормализует числа из строк вида '15 000', '15 000', '15 000 ₽', '12,5 тыс', '1.2 млн'.
+            Возвращает float или None.
+            """
+            if x is None:
+                return None
+            s = str(x).strip().lower()
+            if not s:
+                return None
+
+            # множители
+            mult = 1.0
+            if "млн" in s:
+                mult = 1_000_000.0
+            elif "тыс" in s or re.search(r"\bk\b", s):
+                mult = 1_000.0
+
+            # убрать все виды пробелов (включая NBSP/узкие)
+            s = re.sub(r"[\s\u00A0\u202F]+", "", s)
+
+            # убрать валюты/буквы/прочий мусор, оставить цифры и разделители
+            s = re.sub(r"[^\d.,\-]+", "", s)
+
+            # если внезапно диапазон "15000-20000" в одном поле — берём левую границу
+            if "-" in s and not s.startswith("-"):
+                s = s.split("-", 1)[0]
+
+            s = s.replace(",", ".")
+            if not s or s in ("-", ".", "-."):
+                return None
+
+            try:
+                return float(s) * mult
+            except Exception:
+                return None
 
         # убираем ```json ... ``` оболочку, если есть
         text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
@@ -565,11 +631,11 @@ class SearchService:
             def _get_num(d: dict, *keys) -> Optional[float]:
                 for k in keys:
                     if k in d and d[k] is not None:
-                        try:
-                            return float(str(d[k]).replace(" ", "").replace(",", "."))
-                        except Exception:
-                            continue
+                        v = _to_float(d[k])
+                        if v is not None:
+                            return v
                 return None
+
 
             if isinstance(obj, dict):
                 price_min = _get_num(obj, "price_min", "min")
@@ -614,9 +680,8 @@ class SearchService:
             nums_raw = re.findall(r"\d[\d\s]{0,8}(?:[.,]\d+)?", text)
             values = []
             for n in nums_raw:
-                try:
-                    v = float(n.replace(" ", "").replace(",", "."))
-                except ValueError:
+                v = _to_float(n)
+                if v is None:
                     continue
 
                 # отсекаем совсем мелкие (чаще confidence, проценты и т.п.)
