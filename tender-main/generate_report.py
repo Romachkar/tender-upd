@@ -119,7 +119,15 @@ def _safe_number(val, default=0.0):
             return default
         if isinstance(val, (int, float)):
             return float(val)
-        return float(str(val).replace(" ", "").replace(",", "."))
+        s = str(val)
+        # убираем все виды пробелов (включая NBSP/узкий)
+        s = re.sub(r"[\s\u00A0\u202F]+", "", s)
+        s = s.replace(",", ".")
+        # вычищаем валюты/буквы, если вдруг прилетели
+        s = re.sub(r"[^\d.\-]+", "", s)
+        if not s:
+            return default
+        return float(s)
     except Exception:
         return default
 

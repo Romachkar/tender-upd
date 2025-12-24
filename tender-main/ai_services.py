@@ -165,24 +165,47 @@ def _strip_code_fences(s: str) -> str:
     return s
 
 
-def parse_json_from_text(text: str) -> Optional[Any]:
-    """
-    Попытка вытащить JSON-объект из произвольного текста ответа LLM.
-    Работает по принципу:
-    1) вырезаем самый большой фрагмент между { и };
-    2) пытаемся распарсить как есть;
-    3) если не получилось — чуть чистим строку (кавычки, лишние запятые) и пробуем ещё раз.
-    """
+import json
+import re
+
+def parse_json_from_text(text: str):
     if not text:
         return None
 
-    raw = _strip_code_fences(text)
+    t = text.strip()
 
-    # Ищем первый '{' и последний '}' — предполагаем, что между ними JSON
-    m = re.search(r"\{.*\}", raw, flags=re.DOTALL)
-    if not m:
-        return None
-    candidate = m.group(0)
+    # 1) убрать ```json ... ``` или любые ``` ... ```
+    t = re.sub(r"^```(?:json)?\s*", "", t, flags=re.IGNORECASE)
+    t = re.sub(r"\s*```$", "", t)
+
+    # 2) попытка: найти первый JSON-объект по балансу фигурных скобок
+    start = t.find("{")
+    if start != -1:
+        depth = 0
+        for i in range(start, len(t)):
+            ch = t[i]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    candidate = t[start:i+1].strip()
+                    try:
+                        return json.loads(candidate)
+                    except Exception:
+                        break  # упало, попробуем regex ниже
+
+    # 3) запасной вариант: regex “самый внешний объект”
+    m = re.search(r"\{.*\}", t, flags=re.DOTALL)
+    if m:
+        candidate = m.group(0)
+        try:
+            return json.loads(candidate)
+        except Exception:
+            return None
+
+    return None
+
 
     def _cleanup_json_string(s: str) -> str:
         s = s.replace("“", '"').replace("”", '"').replace("‘", "'").replace("’", "'")
